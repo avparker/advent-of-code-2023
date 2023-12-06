@@ -1,3 +1,4 @@
+// This is a template that can be used to start each day with a fresh file
 fun main() {
   fun part1(input: List<String>): Int {
     return 0

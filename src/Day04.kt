@@ -25,17 +25,20 @@ fun main() {
   }
 
   fun part2(input: List<String>): Int {
+    // TODO
     return 0
   }
 
-  val testInput = readInput("Day04_test")
-
   // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
   val card1 = Card(setOf(41, 48, 83, 86, 17), setOf(83, 86, 6, 31, 17, 9, 48, 53))
-  card1.score().println()
-  println(part1(testInput))
-  println(part2(testInput))
+  check(card1.score() == 8)
+
+  val testInput = readInput("Day04_test")
+  check(part1(testInput) == 13)
+  part2(testInput).println()
+//  check(part2(testInput) == 30)
 
   val input = readInput("Day04")
-  println(part1(input))
+  println("part1 ${part1(input)}")
+  println("part2 ${part2(input)}")
 }

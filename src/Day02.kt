@@ -8,6 +8,8 @@ fun main() {
 
   data class Draw(val red: Int, val green: Int, val blue: Int)
 
+  fun Draw.power() = red * green * blue
+
   data class Game(val id: Int, val draws: List<Draw>)
 
   fun Draw.isPossible(): Boolean =
@@ -17,12 +19,16 @@ fun main() {
     draws.all { it.isPossible() }
 
   fun Game.power(): Int {
-    val minDraw = draws.foldRight(Draw(Int.MIN_VALUE, Int.MIN_VALUE, Int.MIN_VALUE)) { curr, new ->
+    // Reusing the "Draw" data class to hold the max seen for each color
+    val maxColorValues = draws.foldRight(Draw(0, 0, 0)) { curr, new ->
       Draw(max(curr.red, new.red), max(curr.green, new.green), max(curr.blue, new.blue))
     }
-    return minDraw.red * minDraw.green * minDraw.blue
+    return maxColorValues.power()
   }
 
+  // e.g. 3 blue, 4 red
+  // e.g. 1 red, 2 green, 6 blue
+  // missing colors get 0 values
   fun parseDraw(draw: String): Draw {
     val colors = draw.split(",")
     val map = hashMapOf<String, Int>()
@@ -55,7 +61,6 @@ fun main() {
     return game.power()
   }
 
-
   fun part1(input: List<String>): Int {
     return input.sumOf { gameScore(it) }
   }
@@ -64,7 +69,6 @@ fun main() {
     return input.sumOf { gamePower(it) }
   }
 
-  // test if implementation meets criteria from the description, like:
   val testInput = readInput("Day02_test")
   check(gameScore("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green") == 1)
   check(gameScore("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue") == 2)

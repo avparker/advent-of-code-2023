@@ -10,9 +10,15 @@ fun main() {
     }
 
     fun lineCalibration2(line: String): Int {
+        // NOTE: This replaces all the digits and words in the string.
+        // We don't need to do this, we only need the first and last number
+        // So there is a much more efficient way to do this
         val replaced = line.mapIndexed{ i, c ->
             if (c.isDigit()) c
             else {
+                // This is ugly, should find a better way to do this
+                // Note we can't just do replacement in order
+                // e.g. "eightwo" would first get turned into "eigh2" and the eight would be missed
                 val remaining = line.substring(i, (i+5).coerceAtMost(line.length))
                 if (remaining.startsWith("one") ) "1"
                 else if (remaining.startsWith("two") ) "2"
@@ -32,7 +38,6 @@ fun main() {
         return input.sumOf {  lineCalibration2(it) }
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day01_test")
     check(lineCalibration("1abc2") == 12)
     check(lineCalibration("pqr3stu8vwx") == 38)

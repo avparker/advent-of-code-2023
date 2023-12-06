@@ -4,41 +4,44 @@ fun main() {
   data class Part(val number: Int, val startIndex: Int, val endIndex: Int)
   data class Line(val possibleParts: List<Part>, val symbols: List<Symbol>)
 
-  fun Line.hasSymbolTouchingPartRange(part: Part): Boolean =
+  // returns true if the part has a symbol adjacent to it
+  fun Line.hasAdjacentSymbol(part: Part): Boolean =
     symbols.filter { it.index >= part.startIndex - 1 && it.index <= part.endIndex + 1 }.isNotEmpty()
 
-  fun Line.partsTouchingSymbol(symbol: Symbol): List<Part> =
+  // find the parts that are adjacent to the symbol
+  fun Line.adjacentParts(symbol: Symbol): List<Part> =
     possibleParts.filter { symbol.index >= it.startIndex - 1 && symbol.index <= it.endIndex + 1 }
+
   data class Schematic(val lines: List<Line>)
 
   fun Schematic.getParts(): List<Part> =
     lines.flatMapIndexed { lineIndex, line ->
-      line.possibleParts.filter { part ->
-        val prevLine =
-          if (lineIndex >= 1)
-            lines[lineIndex - 1].hasSymbolTouchingPartRange(part)
-          else false
-        val currLine = prevLine || line.hasSymbolTouchingPartRange(part)
-        val nextLine = currLine || if (lineIndex < lines.size - 1)
-          lines[lineIndex + 1].hasSymbolTouchingPartRange(part)
-        else false
-        nextLine
+      line.possibleParts.filter { possibleParts ->
+        // find any parts that are adjacent to symbols
+        // we check the previous and next line as well as the line itself
+        if (lineIndex >= 1)
+          lines[lineIndex - 1].hasAdjacentSymbol(possibleParts)
+        else if (lineIndex < lines.size - 1)
+          lines[lineIndex + 1].hasAdjacentSymbol(possibleParts)
+        else line.hasAdjacentSymbol(possibleParts)
       }
     }
 
   fun Schematic.getGears(): List<Pair<Part, Part>> =
     lines.flatMapIndexed { lineIndex, line ->
-      line.symbols.filter { it.symbol == '*' }.map { symbol ->
-        val prevLine =
-          if (lineIndex >= 1)
-            lines[lineIndex - 1].partsTouchingSymbol(symbol)
+      line.symbols.filter { it.symbol == '*' }
+        // find all the parts that are adjacent to the symbol
+        .map { symbol ->
+          val prevLine =
+            if (lineIndex >= 1)
+              lines[lineIndex - 1].adjacentParts(symbol)
+            else emptyList()
+          val currLine = line.adjacentParts(symbol)
+          val nextLine = if (lineIndex < lines.size - 1)
+            lines[lineIndex + 1].adjacentParts(symbol)
           else emptyList()
-        val currLine = line.partsTouchingSymbol(symbol)
-        val nextLine = if (lineIndex < lines.size - 1)
-          lines[lineIndex + 1].partsTouchingSymbol(symbol)
-        else emptyList()
-        (prevLine + currLine + nextLine)
-      }.filter { it.size == 2 }
+          (prevLine + currLine + nextLine)
+        }.filter { it.size == 2 } // a gear must have exactly 2 parts
         .map {
           it.first() to it.last()
         }
