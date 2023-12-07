@@ -8,7 +8,7 @@ fun main() {
     return 0
   }
 
-  val testInput = readInput("Day03_test")
+  val testInput = readInput("Day00_test")
   println(part1(testInput))
   println(part2(testInput))
 
